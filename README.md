@@ -1,0 +1,1 @@
+# VK_mini_appLizka
