@@ -7,63 +7,28 @@ import io from 'socket.io-client'
 
 const SERVER_URL = 'http://localhost:5000'
 
-const Home = ({ id, go, fetchedUser }) => {
+const Home = ({ id, go, fetchedUser, messages, sendMessage  }) => {
 	const [text, setText] = useState(""); 
 
-	const [messages, setMessages ] = useState ([])
+
 	
 	const handleChangeText = (e) => {
 		setText (e.target.value)
 	}
 
 	const handleSendMessage = (e) => {
-		e.preventDefaunt ()
+		e.preventDefault ()
 		const trimmed = text.trim()
-		if (trimmed){
+		if (trimmed)
+		{
 			sendMessage ({
-				messageText: text, senderName: username
+				messageText: text, 
+				senderName:`${fetchedUser.first_name} ${fetchedUser.last_name}`,	
 			})
 			setText ('')
 		}
 	}
 
-
-	const sendMessage=({
-		messageText,senderName
-	}) => {
-		socket.current.emit ('message:add',{
-			userId,
-			messageText,
-			senderName
-		})
-	}
-
-	
-	const socket=useRef(null)
-
-useEffect(() => {
-	console.log('useEffect')
-	
-	socket.current = io(SERVER_URL)
-	
-	socket.current.emit ('message:get')
-
-	socket.current.on ('messages',(messages) => {
-		const newMessage = messages.map((msg)=>
-		msg.userId === userId ? {
-			...msg, currentUser:true
-		}:msg)
-
-		setMessages(newMessages)
-
-	})
-	
-
-	return () => {
-		socket.current.disconnect()
-	}
-}
-)
 	return (
 	<Panel id={id}>
 
@@ -90,9 +55,12 @@ useEffect(() => {
 */} 
 
 		<Group>
-		<CardGrid size="l">
+		<CardGrid size="l"
+		style={{marginBottom:54}}>
+
 			{messages.map((msg)=>(
 			<ContentCard
+			key={msg.messageId}
 			src={msg.avatar}
 			header={msg.senderName}
 			text={msg.messageText}
