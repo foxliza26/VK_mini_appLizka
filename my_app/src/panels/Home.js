@@ -60,6 +60,7 @@ const Home = ({ id, go, fetchedUser, messages, sendMessage  }) => {
 
 			{messages.map((msg)=>(
 			<ContentCard
+			style={{backgroundColor:msg.currentUser ? '#98FB98' : '#FFFFE0', }}
 			key={msg.messageId}
 
 			subtitle={msg.avatar ? <Avatar src={msg.avatar} /> : null}
