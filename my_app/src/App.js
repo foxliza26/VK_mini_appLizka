@@ -15,7 +15,7 @@ const App = () => {
 	
 	const [messages, setMessages ] = useState ([])
 
-	const SERVER_URL = 'https://vk-mini-apps-server-learn.herokuapp.com'
+	const SERVER_URL = 'https://5.188.141.101:5000'
 
 	const socket=useRef(null)
 
@@ -74,7 +74,8 @@ const App = () => {
 		socket.current.emit ('message:add',{
 			userId: fetchedUser.id,
 			messageText,
-			senderName
+			senderName,
+			avatar:fetchedUser.photo_200
 		})
 	}
 

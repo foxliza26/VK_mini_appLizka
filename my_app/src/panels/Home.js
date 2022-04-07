@@ -61,7 +61,8 @@ const Home = ({ id, go, fetchedUser, messages, sendMessage  }) => {
 			{messages.map((msg)=>(
 			<ContentCard
 			key={msg.messageId}
-			src={msg.avatar}
+
+			subtitle={msg.avatar ? <Avatar src={msg.avatar} /> : null}
 			header={msg.senderName}
 			text={msg.messageText}
 			caption={msg.createdAt}
