@@ -15,7 +15,7 @@ const App = () => {
 	
 	const [messages, setMessages ] = useState ([])
 
-	const SERVER_URL = 'https://5.188.141.101:5000'
+	const SERVER_URL = 'http://localhost:5000'
 
 	const socket=useRef(null)
 
