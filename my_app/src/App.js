@@ -1,82 +1,60 @@
-import React, { useState, useEffect, useRef } from 'react';
-import bridge from '@vkontakte/vk-bridge';
-import { View, ScreenSpinner, AdaptivityProvider, AppRoot } from '@vkontakte/vkui';
-import '@vkontakte/vkui/dist/vkui.css';
+import React, { useState, useEffect, useRef } from 'react'
+import { View, ScreenSpinner, AdaptivityProvider, AppRoot } from '@vkontakte/vkui'
+import bridge from '@vkontakte/vk-bridge'
+import '@vkontakte/vkui/dist/vkui.css'
 
-import Home from './panels/Home';
-import Persik from './panels/Persik';
-
+// получаем класс IO
 import io from 'socket.io-client'
 
+import Home from './panels/Home'
+import Chat from './panels/Chat'
+import Persik from './panels/Persik'
+import Ads from './panels/Ads'
+import Race from './panels/Race'
+
 const App = () => {
-	const [activePanel, setActivePanel] = useState('home');
-	const [fetchedUser, setUser] = useState(null);
-	const [popout, setPopout] = useState(<ScreenSpinner size='large' />);
-	
-	const [messages, setMessages ] = useState ([])
+	const [activePanel, setActivePanel] = useState('home')
+	const [fetchedUser, setUser] = useState(null)
+	const [popout, setPopout] = useState(<ScreenSpinner size='large' />)
 
-	const SERVER_URL = 'http://localhost:5000'
+	// адрес сервера
+	// требуется перенаправление запросов - смотрите ниже
+	const SERVER_URL = 'https://localhost:5000'
 
-	const socket=useRef(null)
+	// useRef() используется не только для получения доступа к DOM-элементам,
+  	// но и для хранения любых мутирующих значений в течение всего жизненного цикла компонента
+  	const socket = useRef(null)
 
-	
-
-	
-
-	useEffect(async() => {
+	useEffect(async () => {
 		bridge.subscribe(({ detail: { type, data }}) => {
 			if (type === 'VKWebAppUpdateConfig') {
-				const schemeAttribute = document.createAttribute('scheme');
-				schemeAttribute.value = data.scheme ? data.scheme : 'client_light';
-				document.body.attributes.setNamedItem(schemeAttribute);
+				const schemeAttribute = document.createAttribute('scheme')
+				schemeAttribute.value = data.scheme ? data.scheme : 'client_light'
+				document.body.attributes.setNamedItem(schemeAttribute)
 			}
-		});
-
-		let user = null
-
+		})
+		
 		async function fetchData() {
-			user = await bridge.send('VKWebAppGetUserInfo');
-			setUser(user);
-			setPopout(null);
+			let user = await bridge.send('VKWebAppGetUserInfo')
+			setUser(user)
+			setPopout(null)
 
+			// создаем экземпляр сокета, передаем ему адрес сервера
+			// и записываем объект с названием комнаты в строку запроса "рукопожатия"
+			// socket.handshake.query.roomId
 			socket.current = io(SERVER_URL)
-	
-			socket.current.emit ('message:get')
-
 		}
-		await fetchData();
 
-		//console.log('useEffect')
-	
-	 socket.current.on ('messages',(messages) => {
-		 //console.log ('on message')
-		const newMessages = messages.map((msg)=>
-		msg.userId === user.id ? {
-			...msg, currentUser:true
-		}:msg)
-
-		setMessages(newMessages)
-	})
+		await fetchData()
 
 		return () => {
-			socket.current.disconnect()
+		  	// при размонтировании компонента выполняем отключение сокета
+		  	socket.current.disconnect()
 		}
-
-	}, []);
+	}, [])	
 
 	const go = e => {
-		setActivePanel(e.currentTarget.dataset.to);
-	};
-
-	const sendMessage=({
-		messageText,senderName
-	}) => {
-		socket.current.emit ('message:add',{
-			userId: fetchedUser.id,
-			messageText,
-			senderName,
-			avatar:fetchedUser.photo_200
-		})
+		setActivePanel(e.currentTarget.dataset.to)
 	}
 
 	return (
@@ -84,19 +62,36 @@ const App = () => {
 			<AppRoot>
 				<View activePanel={activePanel} popout={popout}>
 					<Home 
-					  id='home' 
-					  fetchedUser={fetchedUser} 
-					  go={go} 
-					  messages={messages} 
-					  sendMessage={sendMessage} />
+						id='home' 
+						fetchedUser={fetchedUser} 
+						go={go}
+						socket={socket.current} 
+					/>
+					<Chat 
+						id='chat' 
+						fetchedUser={fetchedUser} 
+						go={go}
+						socket={socket.current} 
+					/>
+					<Race 
+						id='race' 
+						go={go} 
+						fetchedUser={fetchedUser} 
+						socket={socket.current} 
+					/>
+					<Ads
+						id='ads' 
+						go={go} 
+						bridge={bridge}
+					/>
 					<Persik 
-					  id='persik' 
-					  go={go} />
+						id='persik' 
+						go={go} 
+					/>
 				</View>
 			</AppRoot>
 		</AdaptivityProvider>
-	);
+	)
 }
 
-
-export default App;
+export default App

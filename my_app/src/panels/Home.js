@@ -1,42 +1,13 @@
-import React, {useState, Fragment, useEffect, useRef} from 'react';
-import PropTypes from 'prop-types';
+import React from 'react'
+import PropTypes from 'prop-types'
 
-import { Panel, PanelHeader, Header, Button, Group, Cell, Div, Avatar, CardGrid,ContentCard, FixedLayout, Separator,WriteBar, WriteBarIcon } from '@vkontakte/vkui';
+import { Panel, PanelHeader, Header, Button, Group, Cell, Div, Avatar } from '@vkontakte/vkui'
 
-import io from 'socket.io-client'
-
-const SERVER_URL = 'http://localhost:5000'
-
-const Home = ({ id, go, fetchedUser, messages, sendMessage  }) => {
-	const [text, setText] = useState(""); 
-
-
-	
-	const handleChangeText = (e) => {
-		setText (e.target.value)
-	}
-
-	const handleSendMessage = (e) => {
-		e.preventDefault ()
-		const trimmed = text.trim()
-		if (trimmed)
-		{
-			sendMessage ({
-				messageText: text, 
-				senderName:`${fetchedUser.first_name} ${fetchedUser.last_name}`,	
-			})
-			setText ('')
-		}
-	}
-
-	return (
+const Home = ({ id, go, fetchedUser, socket }) => (
 	<Panel id={id}>
-
-
-		<PanelHeader>Люль</PanelHeader>
-		
-		 {/*fetchedUser &&
-		<Group header={<Header mode="secondary">Добро пожаловать!</Header>}>
+		<PanelHeader>Example</PanelHeader>
+		{fetchedUser &&
+		<Group header={<Header mode="secondary">User Data Fetched with VK Bridge</Header>}>
 			<Cell
 				before={fetchedUser.photo_200 ? <Avatar src={fetchedUser.photo_200}/> : null}
 				description={fetchedUser.city && fetchedUser.city.title ? fetchedUser.city.title : ''}
@@ -51,62 +22,36 @@ const Home = ({ id, go, fetchedUser, messages, sendMessage  }) => {
 					Show me the Persik, please
 				</Button>
 			</Div>
-		</Group> 
-*/} 
+			<Div>
+				<Button stretched size="l" mode="secondary" onClick={() => {
+					//socket.current.emit('join', {
+					//	room: 'chat'
+					//})
+					go({
+						currentTarget : {
+							dataset: {
+								to: 'chat'
+							}
+						}
+					})
+					// отправляем запрос на получение сообщений
+					//socket.current.emit('message:get')
+				}} data-to="chat">
+					Чатик
+				</Button>
+			</Div>
+			<Div>
+				<Button stretched size="l" mode="secondary" onClick={go} data-to="race">
+					Гоночки
+				</Button>
+			</Div>
+			<Div>
+				<Button stretched size="l" mode="secondary" onClick={go} data-to="ads">
+					Поддержите проект
+				</Button>
+			</Div>
+		</Group>
+	</Panel>
+)
 
-		<Group>
-		<CardGrid size="l"
-		style={{marginBottom:54}}>
-
-			{messages.map((msg)=>(
-			<ContentCard
-			style={{backgroundColor:msg.currentUser ? '#98FB98' : '#FFFFE0', }}
-			key={msg.messageId}
-
-			subtitle={msg.avatar ? <Avatar src={msg.avatar} /> : null}
-			header={msg.senderName}
-			text={msg.messageText}
-			caption={msg.createdAt}
-			/>
-			))}
-			</CardGrid>
-        </Group>
-
-          <FixedLayout vertical="bottom">
-        
-            <Separator wide />
-           
-            <WriteBar
-            
-              after={
-                <Fragment>
-				  <WriteBarIcon mode="send" 
-				  onClick = {handleSendMessage} />
-
-                </Fragment>
-              }
-              value={text}
-              onChange={handleChangeText}
-          
-              placeholder="Сообщение"
-            />
-          
-        </FixedLayout>		
-	</Panel> )
-
-};
-
-Home.propTypes = {
-	id: PropTypes.string.isRequired,
-	go: PropTypes.func.isRequired,
-	fetchedUser: PropTypes.shape({
-		photo_200: PropTypes.string,
-		first_name: PropTypes.string,
-		last_name: PropTypes.string,
-		city: PropTypes.shape({
-			title: PropTypes.string,
-		}),
-	}),
-};
-
-export default Home;
+export default Home

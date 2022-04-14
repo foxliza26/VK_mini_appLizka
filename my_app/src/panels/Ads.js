@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-import { Panel, PanelHeader, PanelHeaderBack } from '@vkontakte/vkui'
+import { Div, Button, Panel, PanelHeader, PanelHeaderBack } from '@vkontakte/vkui'
 
 import persik from '../img/persik.png'
 import './Persik.css'
@@ -11,10 +11,24 @@ const Persik = props => (
 		<PanelHeader
 			left={<PanelHeaderBack onClick={props.go} data-to="home"/>}
 		>
-			Persik
+			Поддержите проект
 		</PanelHeader>
 		<img className="Persik" src={persik} alt="Persik The Cat"/>
+	<Div>
+			<Button 
+				 stretched size="l"
+				 mode="secondary" 
+				 onClick={()=>
+				{
+                  props.bridge.send ("VKWebAppShowNativeAds",
+				  {"ad_format": "reward"})
+				}} >
+					Посмотрите видео
+			</Button>
+	</Div>
+
 	</Panel>
+
 )
 
 Persik.propTypes = {
